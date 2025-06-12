@@ -9,4 +9,13 @@ export default defineConfig({
   plugins: [vue(),
     tailwindcss()
   ],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:1337',
+        changeOrigin: true,
+      }
+    }
+  }
+  
 })
