@@ -66,16 +66,21 @@
           </div>          <!-- Recent Posts Column -->
           <div class="flex-1 lg:flex-initial lg:w-[35%]">
             <h2 class="text-3xl font-playfair text-black font-bold mb-6">Recent Posts 🗒️</h2>
-            <div class="space-y-6">
+            <div class="space-y-6 h-100 overflow-auto">
               <div v-for="post in recentPosts" :key="post.id" 
-                class="flex gap-4 items-start border-b border-gray-100 pb-6 last:border-0 hover:bg-gray-50 p-4 rounded-lg transition-colors">
-                <img :src="post.image" :alt="post.title" class="w-24 h-24 object-cover rounded-lg flex-shrink-0">
-                <div class="flex-grow min-w-0">
-                  <span class="text-sm text-gray-500 font-inter block mb-1">{{ post.date }}</span>
-                  <h4 class="font-playfair font-bold text-lg mb-2 hover:text-blue-600 transition-colors truncate">
-                    <router-link :to="'/blog/' + post.slug">{{ post.title }}</router-link>
+                class="flex flex-row gap-4 w-100   items-start border-b border-gray-100 pb-6 last:border-0 hover:bg-gray-50 p-4 rounded-lg transition-colors">
+                <div>
+                  <img :src="post.image" :alt="post.title" class="w-100 h-24 object-cover rounded-lg flex-shrink-0">
+                </div>
+                
+                <div>
+                  <!-- <span class="text-sm text-gray-500 font-inter block mb-1">{{ post.date }}</span> -->
+                  <h4 class="font-playfair font-bold text-lg text-wrap mb-2 hover:text-blue-600 transition-colors truncate">
+                    <router-link :to="{path: `/blog/${post.id}`}">{{ post.title }}</router-link>
                   </h4>
-                  <p class="text-gray-600 text-sm line-clamp-2">{{ post.excerpt }}</p>
+                  <!-- <div class="text-wrap" v-for="(block, index) in post.content" :key="index">
+                    <div v-html="block.children[0].text"></div>
+                  </div> -->
                 </div>
               </div>
             </div>
@@ -106,7 +111,7 @@
                   </span>
                   <div class="min-w-0">
                     <h4 class="font-playfair font-bold hover:text-blue-600 transition-colors truncate">
-                      <router-link :to="'/blog/' + post.slug">{{ post.title }}</router-link>
+                      <router-link :to="'/blog/' + post.id">{{  post.title }}</router-link>
                     </h4>
                     <span class="text-sm text-gray-500">{{ post.views }} views</span>
                   </div>
@@ -197,32 +202,39 @@ const currentPage = ref(1);
 const direction = ref('next');
 const isReadingContent = ref(false);
 
+//get the env variable from .env.locla
+ const apiUrl = import.meta.env.VITE_STRAPI_API_HOST; // Replace with your API URL
+ const apiToken = import.meta.env.VITE_STRAPI_API_TOKEN; // Replace with your API token
+// Example API URL for recent posts 
+
 // Blog posts data
-const recentPosts: Post[] = [
-  {
-    id: 1,
-    title: 'How to Create Engaging Content That Converts',
-    slug: 'engaging-content-converts',
-    excerpt: 'Learn the proven strategies to create content that not only attracts readers but converts them into loyal customers.',
-    date: 'June 1, 2025',    image: 'https://placehold.co/600x400/e2e8f0/1e40af?text=Blog+Post+1'
-  },
-  {
-    id: 2,
-    title: 'The Ultimate Guide to SEO Writing',
-    slug: 'ultimate-seo-guide',
-    excerpt: 'Master the art of SEO writing with our comprehensive guide to ranking higher in search results.',
-    date: 'May 28, 2025',
-    image: 'https://placehold.co/600x400/e2e8f0/1e40af?text=Blog+Post+2'
-  },
-  {
-    id: 3,
-    title: 'Content Marketing Trends for 2025',
-    slug: 'content-marketing-trends-2025',
-    excerpt: 'Stay ahead of the curve with these emerging content marketing trends that will shape the industry.',
-    date: 'May 25, 2025',
-    image: 'https://placehold.co/600x400/e2e8f0/1e40af?text=Blog+Post+3'
-  }
-];
+// const recentPosts: Post[] = [
+//   {
+//     id: 1,
+//     title: 'How to Create Engaging Content That Converts',
+//     slug: 'engaging-content-converts',
+//     excerpt: 'Learn the proven strategies to create content that not only attracts readers but converts them into loyal customers.',
+//     date: 'June 1, 2025',    image: 'https://placehold.co/600x400/e2e8f0/1e40af?text=Blog+Post+1'
+//   },
+//   {
+//     id: 2,
+//     title: 'The Ultimate Guide to SEO Writing',
+//     slug: 'ultimate-seo-guide',
+//     excerpt: 'Master the art of SEO writing with our comprehensive guide to ranking higher in search results.',
+//     date: 'May 28, 2025',
+//     image: 'https://placehold.co/600x400/e2e8f0/1e40af?text=Blog+Post+2'
+//   },
+//   {
+//     id: 3,
+//     title: 'Content Marketing Trends for 2025',
+//     slug: 'content-marketing-trends-2025',
+//     excerpt: 'Stay ahead of the curve with these emerging content marketing trends that will shape the industry.',
+//     date: 'May 25, 2025',
+//     image: 'https://placehold.co/600x400/e2e8f0/1e40af?text=Blog+Post+3'
+//   }
+// ];
+
+const recentPosts = ref([]);
 
 const trendingPosts: Post[] = [
   {
@@ -298,9 +310,66 @@ const startAutoAdvance = () => {
 const resetAutoAdvance = () => {
   clearInterval(autoAdvanceTimer);
   startAutoAdvance();
+}
+
+const getImageUrl = (imageData) => {
+  if (!imageData) return '';
+  const { url } = imageData;
+  return `${import.meta.env.VITE_STRAPI_BASE_URL}${url}`;
+};
+
+
+const setTrendingPosts = (posts) => {
+  recentPosts.value = []; // Clear previous posts
+  // Sort posts by views in descending order
+  posts.forEach(post => {
+      const {Title: title, thumbnail: imageData, content, id} = post || {};
+  const imageUrl = getImageUrl(imageData);
+    console.log('Post:', id); // Debug log
+  recentPosts.value.push( {
+      id: id ,
+      title: title || 'No Title Available',
+      image:imageUrl,
+      content: content || [],
+})
+  });
+
+};
+
+const loadRecentPosts = async () => {
+  try {
+    const apiUrl = `${import.meta.env.VITE_STRAPI_API_HOST}/contents?populate=*`;
+    console.log('Fetching from:', apiUrl); // Debug log
+    
+    const response = await fetch(apiUrl, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${import.meta.env.VITE_STRAPI_API_TOKEN}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('API Error:', errorText);
+      throw new Error(`Network response was not ok: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    setTrendingPosts(data.data || []);
+   
+  } catch (error) {
+    console.error('Failed to load recent posts:', error);
+  }
 };
 
 onMounted(() => {
+  // Debug log for environment variables
+  console.log('API Host:', import.meta.env.VITE_STRAPI_API_HOST);
+  console.log('API Token exists:', !!import.meta.env.VITE_STRAPI_API_TOKEN);
+  
+  loadRecentPosts();
   startAutoAdvance();
 });
 

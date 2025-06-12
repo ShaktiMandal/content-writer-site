@@ -1,221 +1,26 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import type { Comment, Post } from '../types/blog';
+import { ref, onMounted } from 'vue';
+import type { Comment } from '../types/blog';
+import type { StrapiContent, StrapiResponse } from '../types/strapi';
+import { useRoute } from 'vue-router';
 
-// Mock data - replace with actual API calls in production
-const blogPost = ref<Post>({
-  id: '1',
-  title: 'Understanding Modern Web Development',
-  content: `Web development has evolved significantly over the past decade, and staying current with modern practices is crucial for creating efficient, maintainable, and user-friendly applications. In this comprehensive guide, we'll explore the key concepts and tools that define modern web development.
+const route = useRoute();
+const id = route.params.id as string;
+const loading = ref(true);
+const error = ref<string | null>(null);
 
-## The Foundation: HTML5, CSS3, and JavaScript
-Modern web development starts with a solid understanding of the fundamentals. HTML5 provides semantic structure, CSS3 handles styling and animations, and JavaScript brings interactivity and dynamic functionality to web applications.
-
-### Component-Based Architecture
-One of the most significant shifts in modern web development is the adoption of component-based architecture. Frameworks like Vue.js, React, and Angular have popularized this approach, where applications are built using reusable, self-contained components. This methodology offers several benefits:
-
-- **Maintainability**: Components are easier to maintain and update
-- **Reusability**: Code can be reused across different parts of the application
-- **Scalability**: Applications can grow without becoming unwieldy
-
-## Modern Development Tools and Practices
-
-### 1. Build Tools and Module Bundlers
-Tools like Vite, Webpack, and Rollup help optimize our code for production. They handle:
-- Code splitting and lazy loading
-- Asset optimization
-- Development server capabilities
-- Hot module replacement
-
-### 2. CSS Technologies
-Modern CSS has evolved with powerful features and methodologies:
-- Flexbox and Grid for layout
-- CSS Modules and CSS-in-JS
-- Utility-first frameworks like Tailwind CSS
-- CSS Custom Properties (variables)
-
-### 3. TypeScript and Type Safety
-TypeScript has become increasingly popular in modern web development, offering:
-- Static type checking
-- Better IDE support
-- Enhanced code maintainability
-- Improved team collaboration
-
-## Best Practices for Modern Web Development
-
-1. **Performance First**
-   - Optimize images and assets
-   - Implement code splitting
-   - Use lazy loading for components and routes
-
-2. **Responsive Design**
-   - Mobile-first approach
-   - Flexible layouts
-   - Adaptive images and content
-
-3. **Security**
-   - HTTPS everywhere
-   - XSS prevention
-   - CSRF protection
-   - Input validation
-
-4. **Accessibility**
-   - Semantic HTML
-   - ARIA attributes
-   - Keyboard navigation
-   - Screen reader compatibility
-
-## Advanced Topics in Modern Web Development
-
-### State Management
-Modern web applications often require sophisticated state management solutions. Popular options include:
-
-1. **Vuex/Pinia (Vue.js)**
-   - Centralized state management
-   - Predictable state mutations
-   - Developer tools integration
-   - Time-travel debugging
-
-2. **Redux/MobX (React)**
-   - Unidirectional data flow
-   - Immutable state updates
-   - Middleware support
-   - Rich ecosystem
-
-3. **NgRx (Angular)**
-   - RxJS integration
-   - Effect handlers
-   - Store devtools
-   - Meta-reducers
-
-### API Integration
-Modern web applications commonly interact with various APIs:
-
-1. **REST APIs**
-   - HTTP methods
-   - Resource-based URLs
-   - Stateless communication
-   - Cache mechanisms
-
-2. **GraphQL**
-   - Query flexibility
-   - Type system
-   - Real-time updates
-   - Reduced over-fetching
-
-3. **WebSockets**
-   - Bi-directional communication
-   - Real-time data
-   - Event-driven architecture
-   - Low latency
-
-### Testing Strategies
-Comprehensive testing is crucial for modern web applications:
-
-1. **Unit Testing**
-   - Jest
-   - Vitest
-   - Mocha
-   - Component isolation
-
-2. **Integration Testing**
-   - Cypress
-   - Playwright
-   - TestCafe
-   - End-to-end scenarios
-
-3. **Performance Testing**
-   - Lighthouse
-   - WebPageTest
-   - Core Web Vitals
-   - User-centric metrics
-
-## Emerging Trends
-
-### 1. JAMstack Architecture
-The JAMstack architecture continues to gain popularity:
-- Static site generation
-- Headless CMS integration
-- API-first approach
-- Edge computing
-
-### 2. Web Assembly
-WebAssembly is opening new possibilities:
-- Near-native performance
-- Language interoperability
-- Complex computations
-- Gaming applications
-
-### 3. Progressive Web Apps
-PWAs combine the best of web and mobile:
-- Offline functionality
-- Push notifications
-- Home screen installation
-- Native-like experience
-
-### 4. AI and Machine Learning
-Integration of AI/ML in web applications:
-- Chatbots and virtual assistants
-- Recommendation systems
-- Image recognition
-- Natural language processing
-
-## Future Considerations
-
-### 1. Sustainability
-Web development is increasingly considering environmental impact:
-- Green hosting
-- Efficient code
-- Optimized assets
-- Reduced carbon footprint
-
-### 2. Privacy and Data Protection
-Growing emphasis on user privacy:
-- GDPR compliance
-- Cookie consent
-- Data minimization
-- Privacy by design
-
-### 3. Cross-Platform Development
-The line between platforms continues to blur:
-- Desktop applications
-- Mobile apps
-- IoT devices
-- Smart TV applications
-
-## Best Practices for Success
-
-1. **Continuous Learning**
-   - Follow industry blogs
-   - Attend conferences
-   - Participate in communities
-   - Build side projects
-
-2. **Code Quality**
-   - Write clean code
-   - Document thoroughly
-   - Review regularly
-   - Refactor when needed
-
-3. **Collaboration**
-   - Use version control
-   - Write clear commit messages
-   - Participate in code reviews
-   - Share knowledge
-
-4. **User Experience**
-   - Design for users
-   - Gather feedback
-   - Iterate regularly
-   - Monitor analytics
-
-## Conclusion
-Modern web development is an exciting field that continues to evolve. By staying updated with these practices and tools, developers can create better, more maintainable applications that provide excellent user experiences.
-
-Remember that while tools and frameworks come and go, understanding the core principles of web development will always be valuable. Focus on learning the fundamentals deeply, and you'll be better equipped to adapt to whatever new technologies emerge in the future.`,
-  author: 'Sarah Mitchell',
-  date: new Date().toLocaleDateString(),
-  likes: 0
+// Initialize with proper type
+const blogPost = ref<{
+  title: string;
+  image: string;
+  content: any[];
+  publishedAt: string;
+  author?: string;
+}>({
+  title: '',
+  image: '',
+  content: [],
+  publishedAt: '',
 });
 
 const comments = ref<Comment[]>([
@@ -311,6 +116,80 @@ const likeComment = (commentId: string) => {
   };
   findAndLikeComment(comments.value);
 };
+
+const getImageUrl = (imageData: any) => {
+ 
+  const { url } = imageData?.formats?.large || {};
+
+  if(!url) return '';
+  return `${import.meta.env.VITE_STRAPI_BASE_URL}${url}`;
+};
+
+const setRecentPost = (data: StrapiResponse) => {
+  if (!data.data?.[0]) {
+    error.value = 'Post not found';
+    return;
+  }
+
+  const post = data.data[0];
+  const { Title, thumbnail, content, publishedAt } = post;
+  const imageUrl = getImageUrl(thumbnail);
+
+  blogPost.value = {
+    title: Title || 'Untitled Post',
+    image: imageUrl,
+    content: content || [],
+    publishedAt: publishedAt ? new Date(publishedAt).toLocaleDateString() : 'No date available',
+    author: 'Sarah Mitchell' // Hardcoded for now
+  };
+};
+
+const getPostById = async () => {
+  try {
+    loading.value = true;
+    error.value = null;
+    
+    console.log('Route params:', route.params);
+    console.log('Fetching post by ID:', id);
+    
+    // Use filters to query by ID
+    const apiUrl = `${import.meta.env.VITE_STRAPI_API_HOST}/contents?filters[id][$eq]=${id}&populate=*`;
+    console.log('Fetching from:', apiUrl);
+    
+    const response = await fetch(apiUrl, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${import.meta.env.VITE_STRAPI_API_TOKEN}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('API Error:', errorText);
+      throw new Error(`Network response was not ok: ${response.status}`);
+    }
+    
+    const data: StrapiResponse = await response.json();
+    console.log('API Response:', data);
+    
+    if (!data.data?.length) {
+      throw new Error('Post not found');
+    }
+    
+    setRecentPost(data);
+  } catch (error) {
+    console.error('Failed to load post:', error);
+    
+  } finally {
+    loading.value = false;
+  }
+};
+
+onMounted(() => {
+  getPostById();
+})
 </script>
 
 <template>  <div class="min-h-screen flex flex-col bg-gray-50">
@@ -326,13 +205,13 @@ const likeComment = (commentId: string) => {
               class="w-12 h-12 rounded-full object-cover"
             />
             <div>
-              <div class="font-semibold text-gray-900">{{ blogPost.author }}</div>
-              <div class="text-gray-600 text-sm">{{ blogPost.date }}</div>
+              <div class="font-semibold text-gray-900">Sarah Mitchell</div>
+              <div class="text-gray-600 text-sm">{{ blogPost.publishedAt }}</div>
             </div>
           </div>
            <img 
-          src="https://placehold.co/1200x600/e2e8f0/1e40af?text=Featured+Blog+Image"
-          alt="Blog feature image"
+          :src="blogPost.image" 
+          :alt="blogPost.title"
           class="w-full h-[400px] object-cover rounded-lg mt-6"
         />
         </div>
@@ -342,7 +221,10 @@ const likeComment = (commentId: string) => {
       <!-- Blog Content -->
       <article class="rounded-lg p-8 mx-auto">
         <div class="prose prose-lg text-black overflow-y-auto" style="scrollbar-width: none; -ms-overflow-style: none; h-15">
-          {{ blogPost.content }}
+          <!-- {{ blogPost.content }} -->
+            <div v-for="(block, index) in blogPost.content" :key="index" class="mb-6">
+    <div v-html="block.children[0].text"></div>
+  </div>
      
         </div>
       </article>
