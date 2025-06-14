@@ -1,5 +1,4 @@
 interface StrapiImage {
-
       url: string;
       formats?: {
         large?: { url: string };
