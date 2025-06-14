@@ -1,26 +1,29 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import type { Comment } from '../types/blog';
-import type { StrapiContent, StrapiResponse } from '../types/strapi';
 import { useRoute } from 'vue-router';
+
+interface BlogPost {
+  title: string;
+  image: string;
+  content: any[];
+  publishedAt: string;
+  author?: string;
+  likes?: number;
+}
 
 const route = useRoute();
 const id = route.params.id as string;
 const loading = ref(true);
 const error = ref<string | null>(null);
 
-// Initialize with proper type
-const blogPost = ref<{
-  title: string;
-  image: string;
-  content: any[];
-  publishedAt: string;
-  author?: string;
-}>({
+const blogPost = ref<BlogPost>({
   title: '',
   image: '',
   content: [],
   publishedAt: '',
+  author: 'Sarah Mitchell',
+  likes: 0
 });
 
 const comments = ref<Comment[]>([
@@ -44,7 +47,6 @@ const comments = ref<Comment[]>([
 ]);
 
 const newComment = ref('');
-const isLiked = ref(false);
 const activeReplyBoxes = ref<Set<string>>(new Set());
 
 const toggleReplyBox = (commentId: string) => {
@@ -89,18 +91,6 @@ const addComment = (parentId: string | null = null) => {
   newComment.value = '';
 };
 
-const toggleLike = () => {
-  if (!blogPost.value.likes) {
-    blogPost.value.likes = 0;
-  }
-  if (isLiked.value) {
-    blogPost.value.likes = Math.max(0, (blogPost.value.likes || 0) - 1);
-  } else {
-    blogPost.value.likes = (blogPost.value.likes || 0) + 1;
-  }
-  isLiked.value = !isLiked.value;
-};
-
 const likeComment = (commentId: string) => {
   const findAndLikeComment = (comments: Comment[]): boolean => {
     for (const comment of comments) {
@@ -117,79 +107,31 @@ const likeComment = (commentId: string) => {
   findAndLikeComment(comments.value);
 };
 
-const getImageUrl = (imageData: any) => {
- 
-  const { url } = imageData?.formats?.large || {};
-
-  if(!url) return '';
-  return `${import.meta.env.VITE_STRAPI_BASE_URL}${url}`;
-};
-
-const setRecentPost = (data: StrapiResponse) => {
-  if (!data.data?.[0]) {
-    error.value = 'Post not found';
-    return;
-  }
-
-  const post = data.data[0];
-  const { Title, thumbnail, content, publishedAt } = post;
-  const imageUrl = getImageUrl(thumbnail);
-
-  blogPost.value = {
-    title: Title || 'Untitled Post',
-    image: imageUrl,
-    content: content || [],
-    publishedAt: publishedAt ? new Date(publishedAt).toLocaleDateString() : 'No date available',
-    author: 'Sarah Mitchell' // Hardcoded for now
-  };
-};
-
-const getPostById = async () => {
+onMounted(async () => {
   try {
-    loading.value = true;
-    error.value = null;
-    
-    console.log('Route params:', route.params);
-    console.log('Fetching post by ID:', id);
-    
-    // Use filters to query by ID
-    const apiUrl = `${import.meta.env.VITE_STRAPI_API_HOST}/contents?filters[id][$eq]=${id}&populate=*`;
-    console.log('Fetching from:', apiUrl);
-    
-    const response = await fetch(apiUrl, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${import.meta.env.VITE_STRAPI_API_TOKEN}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      }
-    });
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('API Error:', errorText);
-      throw new Error(`Network response was not ok: ${response.status}`);
-    }
-    
-    const data: StrapiResponse = await response.json();
-    console.log('API Response:', data);
-    
-    if (!data.data?.length) {
-      throw new Error('Post not found');
-    }
-    
-    setRecentPost(data);
-  } catch (error) {
-    console.error('Failed to load post:', error);
-    
-  } finally {
+    const response = await fetch(`${import.meta.env.VITE_STRAPI_API_HOST}/contents?filters[id][$eq]=${id}&populate=*`);
+    const { data } = await response.json();
+
+
+    const { Title, thumbnail, content, publishedAt } = data[0] || {};
+    blogPost.value = {
+      title: Title,
+      image: getImageUrl(thumbnail),
+      content,
+      publishedAt,
+    };
+    loading.value = false;
+  } catch (e) {
+    error.value = e instanceof Error ? e.message : 'An error occurred';
     loading.value = false;
   }
-};
+});
 
-onMounted(() => {
-  getPostById();
-})
+const getImageUrl = (imageData: any): string => {
+ 
+  const { url } = imageData?.formats?.large || '';
+  return `${import.meta.env.VITE_STRAPI_BASE_URL}${url}`;
+};
 </script>
 
 <template>  <div class="min-h-screen flex flex-col bg-gray-50">
@@ -260,11 +202,8 @@ onMounted(() => {
                 <button 
                   @click="likeComment(comment.id)"
                   class="text-gray-700 hover:text-blue-600"
-                >
-                  <span class="flex items-center gap-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
+                >                  <span class="flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
                     {{ comment.likes }}
                   </span>
                 </button>

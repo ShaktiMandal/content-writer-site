@@ -63,9 +63,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { 
-  DocumentTextIcon, PencilIcon, ChartBarIcon, PresentationChartLineIcon,
-  LightBulbIcon, ChatBubbleLeftRightIcon, DocumentMagnifyingGlassIcon, 
+import {   DocumentTextIcon, PencilIcon, ChartBarIcon,
+  LightBulbIcon, DocumentMagnifyingGlassIcon,
   CheckCircleIcon, CheckIcon, ChevronDownIcon 
 } from '@heroicons/vue/24/outline'
 

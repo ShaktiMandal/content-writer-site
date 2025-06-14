@@ -1,4 +1,4 @@
-`<template>
+<template>
   <div class="bg-white">
     <div class="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
       <!-- About Hero -->
@@ -63,7 +63,7 @@
 </template>
 
 <script setup lang="ts">
-import { CheckCircleIcon, PencilSquareIcon, ChartBarIcon, LightBulbIcon } from '@heroicons/vue/24/outline'
+import { CheckCircleIcon, PencilIcon, ChartBarIcon, LightBulbIcon } from '@heroicons/vue/24/outline';
 
 const expertise = [
   {
@@ -74,7 +74,7 @@ const expertise = [
   {
     area: 'Technical Writing',
     description: 'Breaking down complex topics into clear, digestible content',
-    icon: PencilSquareIcon
+    icon: PencilIcon
   },
   {
     area: 'Content Strategy',
@@ -115,4 +115,4 @@ const education = [
     year: '2019'
   }
 ]
-</script>`
+</script>

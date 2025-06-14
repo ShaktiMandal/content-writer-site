@@ -1,6 +1,5 @@
 interface StrapiImage {
-  data: {
-    attributes: {
+
       url: string;
       formats?: {
         large?: { url: string };
@@ -9,20 +8,21 @@ interface StrapiImage {
         thumbnail?: { url: string };
       };
     };
-  };
-}
 
 export interface StrapiContent {
   id: number;
-  attributes: {
+
     Title: string;
     content: any[];
     thumbnail: StrapiImage;
     publishedAt: string;
     createdAt: string;
     updatedAt: string;
+    image?: string;
+    likes?: number;
+    views?: number;
   };
-}
+
 
 export interface StrapiResponse {
   data: StrapiContent[];

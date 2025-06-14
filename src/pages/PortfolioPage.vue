@@ -1,4 +1,4 @@
-`<template>
+<template>
   <div class="bg-white">
     <div class="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
       <!-- Portfolio Hero -->
@@ -93,18 +93,35 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed } from 'vue';
 import { 
   ArrowTopRightOnSquareIcon, 
   DocumentTextIcon,
   XMarkIcon
-} from '@heroicons/vue/24/outline'
+} from '@heroicons/vue/24/outline';
 
-const categories = ['All', 'Blog Posts', 'Website Copy', 'Case Studies', 'Technical Writing']
-const selectedCategory = ref('All')
-const selectedProject = ref(null)
+interface CaseStudy {
+  challenge: string;
+  solution: string;
+  results: string[];
+}
 
-const portfolio = [
+interface PortfolioItem {
+  title: string;
+  category: string;
+  date: string;
+  description: string;
+  image: string;
+  link: string;
+  caseStudy?: CaseStudy;
+}
+
+const selectedProject = ref<PortfolioItem | null>(null);
+const selectedCategory = ref('All');
+
+const categories = ['All', 'Blog Posts', 'Technical Writing', 'Marketing Copy', 'SEO Content'];
+
+const portfolio: PortfolioItem[] = [
   {
     title: 'Tech Company Website Redesign',
     category: 'Website Copy',
@@ -144,4 +161,4 @@ const filteredPortfolio = computed(() => {
   if (selectedCategory.value === 'All') return portfolio
   return portfolio.filter(item => item.category === selectedCategory.value)
 })
-</script>`
+</script>

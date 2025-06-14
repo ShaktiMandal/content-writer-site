@@ -154,7 +154,7 @@
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from '@headlessui/vue'
-import { Bars3Icon, XMarkIcon } from '@heroicons/vue/24/outline'
+import { XMarkIcon } from '@heroicons/vue/24/outline'
 
 const route = useRoute()
 const mobileMenuOpen = ref(false)
