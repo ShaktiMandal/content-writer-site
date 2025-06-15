@@ -263,7 +263,7 @@ const setRecentPosts = (posts: StrapiContent[]): void => {
 const loadRecentPosts = async () => {
   try {
     const apiUrl = `${import.meta.env.VITE_STRAPI_API_HOST}/contents?populate=*`;
-    console.log('Fetching from:', apiUrl); // Debug log
+    console.log('Fetching from:', import.meta.env.VITE_STRAPI_API_HOST); // Debug log
     
     const response = await fetch(apiUrl, {
       method: 'GET',
