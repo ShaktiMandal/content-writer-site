@@ -241,6 +241,8 @@ const resetAutoAdvance = () => {
 }
 
 const getImageUrl = (imageData: any): string => {
+  console.log('Image Data:', imageData); // Debug log
+   console.log('Image Data:', import.meta.env.VITE_STRAPI_BASE_URL); // Debug log
 
   return `${import.meta.env.VITE_STRAPI_BASE_URL}${imageData.formats?.large?.url}`;
 };
