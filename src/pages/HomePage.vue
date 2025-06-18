@@ -244,32 +244,43 @@ const resetAutoAdvance = () => {
 }
 
 const getImageUrl = (imageData: any): string => {
+  console.log('[Debug] getImageUrl input:', imageData);
+
   if (!imageData) {
-    console.warn('No image data provided');
+    console.log('[Debug] No image data provided');
     return '';
   }
 
   try {
     const baseUrl = import.meta.env.VITE_STRAPI_BASE_URL;
+    console.log('[Debug] Using base URL:', baseUrl);
+
+    // Check for Strapi v4 structure first
+    const strapiV4Url = imageData.data?.attributes?.url;
+    if (strapiV4Url) {
+      console.log('[Debug] Found Strapi v4 URL:', strapiV4Url);
+      const fullUrl = `${baseUrl}${strapiV4Url}`;
+      console.log('[Debug] Generated full URL:', fullUrl);
+      return fullUrl;
+    }
+
+    // Fallback to checking other possible structures
     const imagePath = imageData.url || imageData.formats?.large?.url || '';
-    
+    console.log('[Debug] Image path from other formats:', imagePath);
+
     if (!imagePath) {
-      console.warn('No image URL found in data:', imageData);
+      console.log('[Debug] No valid image path found in:', imageData);
       return '';
     }
 
-    // Ensure we don't have double slashes in the URL (except after http://)
     const cleanBaseUrl = baseUrl.replace(/\/+$/, '');
     const cleanImagePath = imagePath.replace(/^\/+/, '');
     const imageUrl = `${cleanBaseUrl}/${cleanImagePath}`;
-
-    if (!imageUrl.includes('/uploads/')) {
-      console.warn('Generated image URL missing /uploads/ path:', imageUrl);
-    }
+    console.log('[Debug] Final image URL:', imageUrl);
 
     return imageUrl;
   } catch (error) {
-    console.error('Error generating image URL:', error);
+    console.error('[Error] Error generating image URL:', error);
     return '';
   }
 };
@@ -292,7 +303,8 @@ const setRecentPosts = (posts: StrapiContent[]): void => {
 const loadRecentPosts = async () => {
   try {
     const apiUrl = `${import.meta.env.VITE_STRAPI_API_HOST}/contents?populate=*`;
-    console.log('Fetching from:', import.meta.env.VITE_STRAPI_API_HOST); // Debug log
+    console.log('[Debug] API URL:', apiUrl);
+    console.log('[Debug] Base URL:', import.meta.env.VITE_STRAPI_BASE_URL);
     
     const response = await fetch(apiUrl, {
       method: 'GET',
@@ -305,15 +317,22 @@ const loadRecentPosts = async () => {
     
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('API Error:', errorText);
+      console.error('[Error] API Error:', errorText);
       throw new Error(`Network response was not ok: ${response.status}`);
-    }      const data = await response.json();
-      if (!data.data || data.data.length === 0) {
-        console.warn('No posts returned from API');
-      } else if (!data.data[0].thumbnail) {
-        console.warn('First post missing thumbnail data');
-      }
-      setRecentPosts(data.data || []);
+    }
+    
+    const data = await response.json();
+    console.log('[Debug] First post data:', data.data?.[0]);
+    
+    if (data.data?.[0]?.attributes?.thumbnail) {
+      console.log('[Debug] Thumbnail structure:', {
+        raw: data.data[0].attributes.thumbnail,
+        url: data.data[0].attributes.thumbnail.data?.attributes?.url,
+        formats: data.data[0].attributes.thumbnail.data?.attributes?.formats
+      });
+    }
+    
+    setRecentPosts(data.data || []);
    } catch (error) {
     console.error('Failed to load recent posts:', error);
   }
