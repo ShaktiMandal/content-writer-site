@@ -66,11 +66,14 @@
           </div>          <!-- Recent Posts Column -->
           <div class="flex-1 lg:flex-initial lg:w-[35%]">
             <h2 class="text-3xl font-playfair text-black font-bold mb-6">Recent Posts 🗒️</h2>
-            <div class="space-y-6 h-100 overflow-auto">
-              <div v-for="post in recentPosts" :key="post.id" 
+            <div class="space-y-6 h-100 overflow-auto">              <div v-for="post in recentPosts" :key="post.id" 
                 class="flex flex-row gap-4 w-100 items-start border-b border-gray-100 pb-6 last:border-0 hover:bg-gray-50 p-4 rounded-lg transition-colors">
                 <div>
-                  <img :src="getImageUrl(post.thumbnail)" :alt="post.Title" class="w-100 h-24 object-cover rounded-lg flex-shrink-0">
+                  <img 
+                    :src="getImageUrl(post.thumbnail)" 
+                    :alt="post.Title" 
+                    class="w-100 h-24 object-cover rounded-lg flex-shrink-0"
+                  >
                 </div>
                 
                 <div>
@@ -241,10 +244,34 @@ const resetAutoAdvance = () => {
 }
 
 const getImageUrl = (imageData: any): string => {
-  console.log('Image Data:', imageData); // Debug log
-   console.log('Image Data:', import.meta.env.VITE_STRAPI_BASE_URL); // Debug log
+  if (!imageData) {
+    console.warn('No image data provided');
+    return '';
+  }
 
-  return `${import.meta.env.VITE_STRAPI_BASE_URL}${imageData.formats?.large?.url}`;
+  try {
+    const baseUrl = import.meta.env.VITE_STRAPI_BASE_URL;
+    const imagePath = imageData.url || imageData.formats?.large?.url || '';
+    
+    if (!imagePath) {
+      console.warn('No image URL found in data:', imageData);
+      return '';
+    }
+
+    // Ensure we don't have double slashes in the URL (except after http://)
+    const cleanBaseUrl = baseUrl.replace(/\/+$/, '');
+    const cleanImagePath = imagePath.replace(/^\/+/, '');
+    const imageUrl = `${cleanBaseUrl}/${cleanImagePath}`;
+
+    if (!imageUrl.includes('/uploads/')) {
+      console.warn('Generated image URL missing /uploads/ path:', imageUrl);
+    }
+
+    return imageUrl;
+  } catch (error) {
+    console.error('Error generating image URL:', error);
+    return '';
+  }
 };
 
 const setRecentPosts = (posts: StrapiContent[]): void => {
@@ -280,12 +307,14 @@ const loadRecentPosts = async () => {
       const errorText = await response.text();
       console.error('API Error:', errorText);
       throw new Error(`Network response was not ok: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    setRecentPosts(data.data || []);
-   
-  } catch (error) {
+    }      const data = await response.json();
+      if (!data.data || data.data.length === 0) {
+        console.warn('No posts returned from API');
+      } else if (!data.data[0].thumbnail) {
+        console.warn('First post missing thumbnail data');
+      }
+      setRecentPosts(data.data || []);
+   } catch (error) {
     console.error('Failed to load recent posts:', error);
   }
 };
