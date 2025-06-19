@@ -77,7 +77,7 @@
                 </div>
                 
                 <div>
-                  <span class="text-sm text-gray-500 font-inter block mb-1">{{ new Date(post.publishedAt).toLocaleDateString() }}</span>
+                 
                   <h4 class="font-playfair font-bold text-lg text-wrap mb-2 hover:text-blue-600 transition-colors truncate">
                     <router-link :to="{path: `/blog/${post.id}`}">{{ post.Title }}</router-link>
                   </h4>

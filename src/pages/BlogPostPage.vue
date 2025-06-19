@@ -109,7 +109,11 @@ const likeComment = (commentId: string) => {
 
 onMounted(async () => {
   try {
-    const response = await fetch(`${import.meta.env.VITE_STRAPI_API_HOST}/contents?filters[id][$eq]=${id}&populate=*`);
+    const response = await fetch(`${import.meta.env.VITE_STRAPI_API_HOST}/contents?filters[id][$eq]=${id}&populate=*`,{ method: 'GET', headers: {
+        'Authorization': `Bearer ${import.meta.env.VITE_STRAPI_API_TOKEN}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }});
     const { data } = await response.json();
 
 
