@@ -133,7 +133,8 @@ onMounted(async () => {
 
 const getImageUrl = (imageData: any): string => {
  
-  const { url } = imageData?.formats?.large || '';
+  const { url } = imageData || {};
+  if (!url) return '/default-image.png'; // Fallback image if no URL is provided
   return `${import.meta.env.VITE_STRAPI_BASE_URL}${url}`;
 };
 </script>
