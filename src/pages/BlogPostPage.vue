@@ -135,7 +135,8 @@ const getImageUrl = (imageData: any): string => {
  
   const { url } = imageData || {};
   if (!url) return '/default-image.png'; // Fallback image if no URL is provided
-  return `${import.meta.env.VITE_STRAPI_BASE_URL}${url}`;
+  // return `${import.meta.env.VITE_STRAPI_BASE_URL}${url}`;
+  return imageData?.formats?.large?.url || url || '';
 };
 </script>
 

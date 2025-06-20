@@ -251,38 +251,40 @@ const getImageUrl = (imageData: any): string => {
     return '';
   }
 
-  try {
-    const baseUrl = import.meta.env.VITE_STRAPI_BASE_URL;
-    console.log('[Debug] Using base URL:', baseUrl);
+  return imageData?.url || imageData.formats?.small?.url || '';
 
-    // Check for Strapi v4 structure first
-    const strapiV4Url = imageData.data?.attributes?.url;
-    if (strapiV4Url) {
-      console.log('[Debug] Found Strapi v4 URL:', strapiV4Url);
-      const fullUrl = `${baseUrl}${strapiV4Url}`;
-      console.log('[Debug] Generated full URL:', fullUrl);
-      return fullUrl;
-    }
+  // try {
+  //   const baseUrl = import.meta.env.VITE_STRAPI_BASE_URL;
+  //   console.log('[Debug] Using base URL:', baseUrl);
 
-    // Fallback to checking other possible structures
-    const imagePath = imageData.url || imageData.formats?.large?.url || '';
-    console.log('[Debug] Image path from other formats:', imagePath);
+  //   // Check for Strapi v4 structure first
+  //   const strapiV4Url = imageData.data?.attributes?.url;
+  //   if (strapiV4Url) {
+  //     console.log('[Debug] Found Strapi v4 URL:', strapiV4Url);
+  //     const fullUrl = `${baseUrl}${strapiV4Url}`;
+  //     console.log('[Debug] Generated full URL:', fullUrl);
+  //     return fullUrl;
+  //   }
 
-    if (!imagePath) {
-      console.log('[Debug] No valid image path found in:', imageData);
-      return '';
-    }
+  //   // Fallback to checking other possible structures
+  //   const imagePath = imageData.url || imageData.formats?.large?.url || '';
+  //   console.log('[Debug] Image path from other formats:', imagePath);
 
-    const cleanBaseUrl = baseUrl.replace(/\/+$/, '');
-    const cleanImagePath = imagePath.replace(/^\/+/, '');
-    const imageUrl = `${cleanBaseUrl}/${cleanImagePath}`;
-    console.log('[Debug] Final image URL:', imageUrl);
+  //   if (!imagePath) {
+  //     console.log('[Debug] No valid image path found in:', imageData);
+  //     return '';
+  //   }
 
-    return imageUrl;
-  } catch (error) {
-    console.error('[Error] Error generating image URL:', error);
-    return '';
-  }
+  //   const cleanBaseUrl = baseUrl.replace(/\/+$/, '');
+  //   const cleanImagePath = imagePath.replace(/^\/+/, '');
+  //   const imageUrl = `${cleanBaseUrl}/${cleanImagePath}`;
+  //   console.log('[Debug] Final image URL:', imageUrl);
+
+  //   return imageUrl;
+  // } catch (error) {
+  //   console.error('[Error] Error generating image URL:', error);
+  //   return '';
+  // }
 };
 
 const setRecentPosts = (posts: StrapiContent[]): void => {
