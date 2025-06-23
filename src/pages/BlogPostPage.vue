@@ -160,7 +160,7 @@ const getImageUrl = (imageData: any): string => {
            <img 
           :src="blogPost.image" 
           :alt="blogPost.title"
-          class="w-full h-[400px] object-cover rounded-lg mt-6"
+          class="w-full h-full object-cover rounded-lg mt-6"
         />
         </div>
        

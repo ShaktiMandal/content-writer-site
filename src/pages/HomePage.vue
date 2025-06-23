@@ -67,12 +67,12 @@
           <div class="w-full lg:w-[35%]">
             <h2 class="text-3xl font-playfair text-black font-bold mb-6">Recent Posts 🗒️</h2>
             <div class="space-y-6 h-100 overflow-auto">              <div v-for="post in recentPosts" :key="post.id" 
-                class="flex flex-row gap-4 w-100 items-start border-b border-gray-100 pb-6 last:border-0 hover:bg-gray-50 p-4 rounded-lg transition-colors">
+                class="flex flex-row gap-2 w-100 items-start border-b border-gray-100 pb-6 last:border-0 hover:bg-gray-50 p-4 rounded-lg transition-colors">
                 <div>
                   <img 
                     :src="getImageUrl(post.thumbnail)" 
                     :alt="post.Title" 
-                    class="w-100 h-24 object-cover rounded-lg flex-shrink-0"
+                    class="w-[30%] object-cover rounded-lg flex-shrink-0"
                   >
                 </div>
                 
