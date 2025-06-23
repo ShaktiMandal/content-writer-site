@@ -41,9 +41,9 @@
       </div>
     </div><!-- Services Overview -->   
      <div class="py-16 bg-white">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex flex-row md:flex-row  gap-8">          <!-- Editor's Pick Column -->
-          <div class="flex-1 lg:flex-initial lg:w-[40%]">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-5">
+        <div class="flex !flex-col lg:!flex-row  gap-4">          <!-- Editor's Pick Column -->
+          <div class="w-full lg:w-[40%]">
             <div class="bg-white rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] p-8 transition-shadow hover:shadow-[0_4px_16px_rgba(0,0,0,0.12)] h-full">
               <h2 class="text-3xl font-playfair font-bold mb-6 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Editor's Pick </h2>              <img 
                 src="https://placehold.co/600x400/e2e8f0/1e40af?text=Featured+Post" 
@@ -64,7 +64,7 @@
               </router-link>
             </div>
           </div>          <!-- Recent Posts Column -->
-          <div class="flex-1 lg:flex-initial lg:w-[35%]">
+          <div class="w-full lg:w-[35%]">
             <h2 class="text-3xl font-playfair text-black font-bold mb-6">Recent Posts 🗒️</h2>
             <div class="space-y-6 h-100 overflow-auto">              <div v-for="post in recentPosts" :key="post.id" 
                 class="flex flex-row gap-4 w-100 items-start border-b border-gray-100 pb-6 last:border-0 hover:bg-gray-50 p-4 rounded-lg transition-colors">
@@ -100,7 +100,7 @@
               </button>
             </div>
           </div>          <!-- Trending Posts Column -->
-          <div class="flex-1 lg:flex-initial lg:w-[25%]">
+          <div class="w-full lg:w-[25%]">
             <div class="bg-white rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] p-6 h-full">
               <h2 class="text-3xl font-playfair text-green-100 font-bold mb-6">Trending 🔥</h2>
               <div class="space-y-6">

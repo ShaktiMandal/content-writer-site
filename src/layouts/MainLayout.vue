@@ -92,7 +92,7 @@
       <router-view></router-view>
     </main>    <footer class="bg-gray-800 text-white">
       <div class="max-w-7xl flex flex-col mx-auto py-12 px-4 sm:px-6 lg:px-8">
-        <div class="flex flex-row md:flex-row gap-8 w-screen  items-center">
+        <div class="flex !flex-col md:!flex-row gap-8  items-center">
           <!-- Footer Content -->
           <div class="flex flex-col gap-8">
             <div>
@@ -118,7 +118,7 @@
             </div>
           </div>
         
-           <div class="mt-8 pt-8 border-l border-gray-700 text-center text-gray-400"></div>
+           
           <!-- Newsletter Signup -->
           <div class="lg:w-1/3">
             <div class="bg-gray-700/50 rounded-xl p-6">
